@@ -1,17 +1,11 @@
+const {addNoteHandler} = require('./handler');
+
 const routes = [
+    // menyimpan daftar buku melalui route 
     {
-        method:'GET',
-        path:'/',
-        handler: (request, h) => {
-            return 'Homepage';
-        },
-    },
-    {
-        method:'GET',
-        path:'/about',
-        handler: (request, h) => {
-            return 'About page';
-        },
+        method:'POST',
+        path:'/books',
+        handler: addNoteHandler,
     },
 ];
 
