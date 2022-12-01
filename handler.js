@@ -1,40 +1,57 @@
 const { nanoid } = require('nanoid');
-const notes = require('./notes');
+const books = require('./books');
 
 // handler untuk menambahkan data buku 
-const addNoteHandler = (request, h) =>{
+const postNewBooks = (request, h) =>{
 
-    const { name, year, author, summary, publisher, pagecount, readpage, reading} = request.payload;
+    const {name,
+      year,
+      author,
+      summary,
+      publisher,
+      pageCount,
+      readPage,
+      reading} = request.payload;
     
-    const id = nanoid(16);
-    const createdAt = new Date().toISOString();
-    const updatedAt = createdAt;
-
-    const finished = pageCount == readPage ? true : false;
-
-    if (typeof name == 'undefined') {
+      const id = nanoid(10);
+      const createdAt = new Date().toISOString();
+      const updatedAt = createdAt;
+      const finished = pageCount == readPage ? true : false;
+    
+      if (typeof name == 'undefined') {
         const response = h.response({
           status: 'fail',
-          message: 'Gagal Menamabhakan Daftar buku. Mohon isi Nama buku',
+          message: 'Gagal menambahkan dafta buku. Mohon silahkan isi nama buku terlebih dahulu',
         });
         response.statusCode = 400;
         return response;
       } else if (readPage > pageCount) {
         const response = h.response({
           status: 'fail',
-          message: 'Gagal menambahkan buku. readpage lebih besar daripada pagecount',
+          message: 'Gagal menambahkan buku. readpage lebih besar silahkan check kembali',
         });
         response.statusCode = 400;
         return response;
       }
 
-      try { const newbook = {id, name, year, author, summary, publisher, pagecount, readpage, finished, reading, createdAt, updatedAt };
-      notes.push(newbook);
+      try { const newbook = {id,
+        name,
+        year,
+        author,
+        summary,
+        publisher,
+        pageCount,
+        readPage,
+        finished,
+        reading,
+        createdAt,
+        updatedAt,};
+      books.push(newbook);
       const response = h.response({
         'status': 'success',
         'message': 'Buku berhasil ditambahkan',
         'data': {
-            'bookId': newBook.id,
+            'bookId': newbook.id,
         },
             },
                 );
@@ -47,9 +64,9 @@ const addNoteHandler = (request, h) =>{
                     message: 'buku gagal ditambahkan',
             },
                 );
-                response.statusCode = 500;
+                response.statusCode = 201;
                 return response;
             };
 }
 
-module.exports = { addNoteHandler };
+module.exports = { postNewBooks };
