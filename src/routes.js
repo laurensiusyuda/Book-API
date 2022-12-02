@@ -1,7 +1,9 @@
 const {
     postNewBooks, 
     getAllBooks,
-    getBooksById} = require('./handler');
+    getBooksById,
+    getEditBooksById,
+    getDeleteBooksById} = require('./handler');
 
 const routes = [
     // menyimpan daftar buku melalui route 
@@ -16,11 +18,24 @@ const routes = [
         path:'/books',
         handler :getAllBooks,
     },
+    // menampilkan data buku by id melalui route
     {
         method: 'GET',
         path: '/books/{id}',
         handler: getBooksById,
     },
+    // mengedit data buku by id melalui route
+    {
+        method:'PUT',
+        path:'/books/{id}',
+        handler: getEditBooksById,
+    },
+    // menghapus data buku by id melalui route
+    {
+        method:'DELETE',
+        path:'/books/{id}',
+        handler:getDeleteBooksById,
+      },
 ];
 
 module.exports = routes;
