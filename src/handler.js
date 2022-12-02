@@ -69,4 +69,46 @@ const postNewBooks = (request, h) =>{
             };
 }
 
-module.exports = { postNewBooks };
+// handeler untuk menampilkan seluruh buku
+const getAllBooks =(request, h) => {
+  const allBooks = books.map((book)=>{
+    return {
+      'id': book.id,
+      'name': book.name,
+      'publisher': book.publisher,
+    };
+  });
+  const response = h.response({
+    status: 'success',
+    data: {
+      books: allBooks,
+    },
+  });
+  response.statusCode = 200;
+  return response;
+};
+
+// handler untuk menampilkan buku by id
+const getBooksById = (request, h) => {
+  const { id } = request.params;
+  const book = books.filter((book) => book.id === id)[0];
+  if (book !== undefined) {
+    return {
+      status: 'success',
+      data: {
+        book,
+      },
+    };
+  }
+  const response = h.response({
+    status: 'fail',
+    message: 'Buku tidak ditemukan',
+  });
+  response.code(404);
+  return response;
+};
+
+module.exports = {
+  postNewBooks, 
+  getAllBooks, 
+  getBooksById};
