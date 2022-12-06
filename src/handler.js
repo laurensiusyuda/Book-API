@@ -1,7 +1,8 @@
 const { nanoid } = require('nanoid');
 const books = require('./books');
+
 // handler untuk menambahkan data buku 
-const postNewBooks = (request, h) =>{
+const postNewBooks = (request, h) => {
   const {
     name,
     year,
@@ -11,33 +12,35 @@ const postNewBooks = (request, h) =>{
     pageCount,
     readPage,
     reading } = request.payload;
-    
-    const id = nanoid(10);
-    const createdAt = new Date().toISOString();
-    const updatedAt = createdAt;
-    const finished = pageCount == readPage ? true : false;
 
-    if (typeof name == 'undefined') {
-      const response = h.response({
-        status: 'fail',
-        message: 'Gagal menambahkan dafta buku. Mohon silahkan isi nama buku terlebih dahulu',
-      }
-      );
-      response.statusCode = 400;
-      return response;
+  const id = nanoid(10);
+  const insertedAt = new Date().toISOString();
+  const updatedAt = insertedAt;
+  const finished = pageCount == readPage ? true : false;
+
+  if (typeof name == 'undefined') {
+    const response = h.response({
+      status: 'fail',
+      message: 'Gagal menambahkan buku. Mohon isi nama buku',
     }
+    );
+    response.statusCode = 400;
+    return response;
+  }
 
-    else if (readPage > pageCount) {
-      const response = h.response({
-        status: 'fail',
-        message: 'Gagal menambahkan buku. readpage lebih besar silahkan check kembali',
-      }
-      );
-      response.statusCode = 400;
-      return response;
+  else if (readPage > pageCount) {
+    const response = h.response({
+      status: 'fail',
+      message: 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount',
     }
+    );
+    response.statusCode = 400;
+    return response;
+  }
 
-    try { const newbook = {id,
+  try {
+    const newbook = {
+      id,
       name,
       year,
       author,
@@ -47,7 +50,7 @@ const postNewBooks = (request, h) =>{
       readPage,
       finished,
       reading,
-      createdAt,
+      insertedAt,
       updatedAt,
     };
     books.push(newbook);
@@ -55,7 +58,7 @@ const postNewBooks = (request, h) =>{
     const response = h.response({
       'status': 'success',
       'message': 'Buku berhasil ditambahkan',
-      'data': 
+      'data':
       {
         'bookId': newbook.id,
       },
@@ -63,7 +66,7 @@ const postNewBooks = (request, h) =>{
     );
     response.statusCode = 201;
     return response;
-  } 
+  }
 
   catch (error) {
     const response = h.response({
@@ -75,9 +78,10 @@ const postNewBooks = (request, h) =>{
     return response;
   };
 }
+
 // handeler untuk menampilkan seluruh buku
-const getAllBooks =(request, h) => {
-  const allBooks = books.map((book)=>{
+const getAllBooks = (request, h) => {
+  const allBooks = books.map((book) => {
     return {
       'id': book.id,
       'name': book.name,
@@ -93,6 +97,7 @@ const getAllBooks =(request, h) => {
   response.statusCode = 200;
   return response;
 };
+
 // handler untuk menampilkan buku by id
 const getBooksById = (request, h) => {
   const { id } = request.params;
@@ -112,9 +117,12 @@ const getBooksById = (request, h) => {
   response.code(404);
   return response;
 };
+
 // handler untuk edit buku 
 const getEditBooksById = (request, h) => {
-  const {id} = request.params;
+  const { id } = request.params;
+  const book = books.filter((book) => book.id === id)[0];
+
   const {
     name,
     year,
@@ -123,33 +131,32 @@ const getEditBooksById = (request, h) => {
     publisher,
     pageCount,
     readPage,
-    reading} = request.payload;
-    const createdAt = new Date().toISOString();
-    const updatedAt = new Date().toISOString();
-    const book = books.findIndex((book) => book.id === id);
+    reading } = request.payload;
+  const createdAt = new Date().toISOString();
+  const updatedAt = new Date().toISOString();
 
-    // jikda tidak memasukan nama 
-    if (name === undefined) {
-      const response = h.response({
-        status: 'fail',
-        message: 'Gagal mengedit buku. Mohon isi nama buku terlebih dahulu',
-      });
-      response.statusCode = 400;
-      return response;
-    } 
-    // read page lebih besar dari pada page count
-    else if (readPage > pageCount) {
-      const response = h.response({
-        status: 'fail',
-        message: 'Gagal mengedit buku. Readpage lebih besar silahkan check kembali',
-      });
-      response.statusCode = 400;
-      return response;
-    } 
-  
-    const finished = (pageCount === readPage);
-    if (book !== -1){
-      books[book] = {
+  // jikda tidak memasukan nama 
+  if (name === undefined) {
+    const response = h.response({
+      status: 'fail',
+      message: 'Gagal memperbarui buku. Mohon isi nama buku',
+    });
+    response.statusCode = 400;
+    return response;
+  }
+  // read page lebih besar dari pada page count
+  else if (readPage > pageCount) {
+    const response = h.response({
+      status: 'fail',
+      message: 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
+    });
+    response.statusCode = 400;
+    return response;
+  }
+
+  const finished = (pageCount === readPage);
+  if (book !== -1) {
+    books[book] = {
       ...books[book],
       name,
       year,
@@ -177,19 +184,20 @@ const getEditBooksById = (request, h) => {
   response.code(404);
   return response;
 };
+
 // handler untuk menghapus buku
-const getDeleteBooksById = (request ,h ) => {
+const getDeleteBooksById = (request, h) => {
   const { id } = request.params;
   const book = books.findIndex((book) => book.id === id);
   if (book !== -1) {
-    books.splice(book,1);
+    books.splice(book, 1);
     const response = h.response({
-      status:'success',
-      message:'Buku berhasil dihapus',
+      status: 'success',
+      message: 'Buku berhasil dihapus',
     });
     response.code(200);
     return response;
-  } else{
+  } else {
     const response = h.response({
       status: 'fail',
       message: 'Buku gagal dihapus. Id tidak ditemukan',
@@ -198,12 +206,13 @@ const getDeleteBooksById = (request ,h ) => {
     return response;
   };
 }
-  
 
 
-  module.exports = {
-  postNewBooks, 
-  getAllBooks, 
+
+module.exports = {
+  postNewBooks,
+  getAllBooks,
   getBooksById,
   getEditBooksById,
-  getDeleteBooksById};
+  getDeleteBooksById
+};
