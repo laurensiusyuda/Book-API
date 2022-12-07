@@ -120,9 +120,6 @@ const getBooksById = (request, h) => {
 
 // handler untuk edit buku 
 const getEditBooksById = (request, h) => {
-  const { id } = request.params;
-  const book = books.filter((book) => book.id === id)[0];
-
   const {
     name,
     year,
@@ -131,33 +128,33 @@ const getEditBooksById = (request, h) => {
     publisher,
     pageCount,
     readPage,
-    reading } = request.payload;
-  const createdAt = new Date().toISOString();
+    reading,
+  } = request.payload;
+  const {id} = request.params;
+  const finished = readPage === pageCount;
   const updatedAt = new Date().toISOString();
-
-  // jikda tidak memasukan nama 
+  const failMessage = 'Gagal memperbarui buku. ';
   if (name === undefined) {
     const response = h.response({
       status: 'fail',
-      message: 'Gagal memperbarui buku. Mohon isi nama buku',
+      message: failMessage + 'Mohon isi nama buku',
     });
-    response.statusCode = 400;
-    return response;
-  }
-  // read page lebih besar dari pada page count
-  else if (readPage > pageCount) {
-    const response = h.response({
-      status: 'fail',
-      message: 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
-    });
-    response.statusCode = 400;
+    response.code(400);
     return response;
   }
 
-  const finished = (pageCount === readPage);
-  if (book !== -1) {
-    books[book] = {
-      ...books[book],
+  if (readPage > pageCount) {
+    const response = h.response({
+      status: 'fail',
+      message: failMessage + 'readPage tidak boleh lebih besar dari pageCount',
+    });
+    response.code(400);
+    return response;
+  }
+  const index = books.findIndex((book) => book.id === id);
+  if (index > -1) {
+    books[index] = {
+      ...books[index],
       name,
       year,
       author,
@@ -167,9 +164,9 @@ const getEditBooksById = (request, h) => {
       readPage,
       finished,
       reading,
-      createdAt,
       updatedAt,
     };
+
     const response = h.response({
       status: 'success',
       message: 'Buku berhasil diperbarui',
@@ -177,9 +174,10 @@ const getEditBooksById = (request, h) => {
     response.code(200);
     return response;
   }
+
   const response = h.response({
     status: 'fail',
-    message: 'Gagal memperbarui Buku. Id tidak ditemukan',
+    message: failMessage + 'Id tidak ditemukan',
   });
   response.code(404);
   return response;
